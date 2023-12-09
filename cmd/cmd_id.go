@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/gucooing/hkrpg-go/protocol/proto"
+	"github.com/gucooing/hkrpg-go-proto/proto"
 )
 
 const (
