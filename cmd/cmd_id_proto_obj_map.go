@@ -4,9 +4,14 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/gucooing/hkrpg-go-proto/proto"
+	"github.com/gucooing/hkrpg-go/pkg/logger"
+	"github.com/gucooing/hkrpg-go/protocol/proto"
+	spb "github.com/gucooing/hkrpg-go/protocol/server"
 	pb "google.golang.org/protobuf/proto"
 )
+
+var sharedCmdProtoMap *CmdProtoMap
+var cmdProtoMapOnce sync.Once
 
 type CmdProtoMap struct {
 	cmdIdProtoObjMap        map[uint16]reflect.Type
@@ -16,6 +21,13 @@ type CmdProtoMap struct {
 	cmdNameCmdIdMap         map[string]uint16
 	cmdIdProtoObjCacheMap   map[uint16]*sync.Pool
 	cmdIdProtoObjFastNewMap map[uint16]func() any
+}
+
+func GetSharedCmdProtoMap() *CmdProtoMap {
+	cmdProtoMapOnce.Do(func() {
+		sharedCmdProtoMap = NewCmdProtoMap()
+	})
+	return sharedCmdProtoMap
 }
 
 func NewCmdProtoMap() (r *CmdProtoMap) {
@@ -35,8 +47,6 @@ func NewCmdProtoMap() (r *CmdProtoMap) {
 func (c *CmdProtoMap) registerMessage() {
 	c.regMsg(ActivateFarmElementCsReq, func() any { return new(proto.ActivateFarmElementCsReq) })
 	c.regMsg(ActivateFarmElementScRsp, func() any { return new(proto.ActivateFarmElementScRsp) })
-	c.regMsg(AddRogueBuffScNotify, func() any { return new(proto.AddRogueBuffScNotify) })
-	c.regMsg(AddRogueMiracleScNotify, func() any { return new(proto.AddRogueMiracleScNotify) })
 	c.regMsg(ApplyFriendCsReq, func() any { return new(proto.ApplyFriendCsReq) })
 	c.regMsg(AvatarExpUpCsReq, func() any { return new(proto.AvatarExpUpCsReq) })
 	c.regMsg(AvatarExpUpScRsp, func() any { return new(proto.AvatarExpUpScRsp) })
@@ -87,6 +97,8 @@ func (c *CmdProtoMap) registerMessage() {
 	c.regMsg(GetDailyActiveInfoCsReq, func() any { return new(proto.GetDailyActiveInfoCsReq) })
 	c.regMsg(GetDailyActiveInfoScRsp, func() any { return new(proto.GetDailyActiveInfoScRsp) })
 	c.regMsg(GetEnteredSceneScRsp, func() any { return new(proto.GetEnteredSceneScRsp) })
+	c.regMsg(GetFarmStageGachaInfoCsReq, func() any { return new(proto.GetFarmStageGachaInfoCsReq) })
+	c.regMsg(GetFarmStageGachaInfoScRsp, func() any { return new(proto.GetFarmStageGachaInfoScRsp) })
 	c.regMsg(GetFirstTalkByPerformanceNpcCsReq, func() any { return new(proto.GetFirstTalkByPerformanceNpcCsReq) })
 	c.regMsg(GetFirstTalkByPerformanceNpcScRsp, func() any { return new(proto.GetFirstTalkByPerformanceNpcScRsp) })
 	c.regMsg(GetFriendApplyListInfoScRsp, func() any { return new(proto.GetFriendApplyListInfoScRsp) })
@@ -123,6 +135,9 @@ func (c *CmdProtoMap) registerMessage() {
 	c.regMsg(GetShopListScRsp, func() any { return new(proto.GetShopListScRsp) })
 	c.regMsg(GetUnlockTeleportCsReq, func() any { return new(proto.GetUnlockTeleportCsReq) })
 	c.regMsg(GetUnlockTeleportScRsp, func() any { return new(proto.GetUnlockTeleportScRsp) })
+	c.regMsg(GroupStateChangeCsReq, func() any { return new(proto.GroupStateChangeCsReq) })
+	c.regMsg(GroupStateChangeScNotify, func() any { return new(proto.GroupStateChangeScNotify) })
+	c.regMsg(GroupStateChangeScRsp, func() any { return new(proto.GroupStateChangeScRsp) })
 	c.regMsg(HandleFriendCsReq, func() any { return new(proto.HandleFriendCsReq) })
 	c.regMsg(HandleFriendScRsp, func() any { return new(proto.HandleFriendScRsp) })
 	c.regMsg(InteractPropCsReq, func() any { return new(proto.InteractPropCsReq) })
@@ -161,7 +176,6 @@ func (c *CmdProtoMap) registerMessage() {
 	c.regMsg(ReserveStaminaExchangeCsReq, func() any { return new(proto.ReserveStaminaExchangeCsReq) })
 	c.regMsg(ReserveStaminaExchangeScRsp, func() any { return new(proto.ReserveStaminaExchangeScRsp) })
 	c.regMsg(RevcMsgScNotify, func() any { return new(proto.RevcMsgScNotify) })
-	c.regMsg(RollRogueBuffScRsp, func() any { return new(proto.RollRogueBuffScRsp) })
 	c.regMsg(SceneCastSkillCsReq, func() any { return new(proto.SceneCastSkillCsReq) })
 	c.regMsg(SceneCastSkillMpUpdateScNotify, func() any { return new(proto.SceneCastSkillMpUpdateScNotify) })
 	c.regMsg(SceneCastSkillScRsp, func() any { return new(proto.SceneCastSkillScRsp) })
@@ -175,16 +189,11 @@ func (c *CmdProtoMap) registerMessage() {
 	c.regMsg(SelectChatBubbleScRsp, func() any { return new(proto.SelectChatBubbleScRsp) })
 	c.regMsg(SelectPhoneThemeCsReq, func() any { return new(proto.SelectPhoneThemeCsReq) })
 	c.regMsg(SelectPhoneThemeScRsp, func() any { return new(proto.SelectPhoneThemeScRsp) })
-	c.regMsg(SelectRogueBuffCsReq, func() any { return new(proto.SelectRogueBuffCsReq) })
-	c.regMsg(SelectRogueBuffScRsp, func() any { return new(proto.SelectRogueBuffScRsp) })
 	c.regMsg(SelectRogueDialogueEventCsReq, func() any { return new(proto.SelectRogueDialogueEventCsReq) })
 	c.regMsg(SelectRogueDialogueEventScRsp, func() any { return new(proto.SelectRogueDialogueEventScRsp) })
-	c.regMsg(SelectRogueMiracleCsReq, func() any { return new(proto.SelectRogueMiracleCsReq) })
-	c.regMsg(SelectRogueMiracleScRsp, func() any { return new(proto.SelectRogueMiracleScRsp) })
 	c.regMsg(SellItemCsReq, func() any { return new(proto.SellItemCsReq) })
 	c.regMsg(SellItemScRsp, func() any { return new(proto.SellItemScRsp) })
 	c.regMsg(SendMsgCsReq, func() any { return new(proto.SendMsgCsReq) })
-	c.regMsg(ServerAnnounceNotify, func() any { return new(proto.ServerAnnounceNotify) })
 	c.regMsg(SetClientPausedCsReq, func() any { return new(proto.SetClientPausedCsReq) })
 	c.regMsg(SetClientPausedScRsp, func() any { return new(proto.SetClientPausedScRsp) })
 	c.regMsg(SetGameplayBirthdayCsReq, func() any { return new(proto.SetGameplayBirthdayCsReq) })
@@ -215,10 +224,8 @@ func (c *CmdProtoMap) registerMessage() {
 	c.regMsg(SyncEntityBuffChangeListScNotify, func() any { return new(proto.SyncEntityBuffChangeListScNotify) })
 	c.regMsg(SyncHandleFriendScNotify, func() any { return new(proto.SyncHandleFriendScNotify) })
 	c.regMsg(SyncLineupNotify, func() any { return new(proto.SyncLineupNotify) })
-	c.regMsg(SyncRogueBuffSelectInfoScNotify, func() any { return new(proto.SyncRogueBuffSelectInfoScNotify) })
 	c.regMsg(SyncRogueFinishScNotify, func() any { return new(proto.SyncRogueFinishScNotify) })
 	c.regMsg(SyncRogueMapRoomScNotify, func() any { return new(proto.SyncRogueMapRoomScNotify) })
-	c.regMsg(SyncRogueMiracleSelectInfoScNotify, func() any { return new(proto.SyncRogueMiracleSelectInfoScNotify) })
 	c.regMsg(SyncRogueVirtualItemInfoScNotify, func() any { return new(proto.SyncRogueVirtualItemInfoScNotify) })
 	c.regMsg(TakeChallengeRewardCsReq, func() any { return new(proto.TakeChallengeRewardCsReq) })
 	c.regMsg(TakeChallengeRewardScRsp, func() any { return new(proto.TakeChallengeRewardScRsp) })
@@ -232,6 +239,8 @@ func (c *CmdProtoMap) registerMessage() {
 	c.regMsg(TextJoinQueryScRsp, func() any { return new(proto.TextJoinQueryScRsp) })
 	c.regMsg(UnlockBackGroundMusicCsReq, func() any { return new(proto.UnlockBackGroundMusicCsReq) })
 	c.regMsg(UnlockBackGroundMusicScRsp, func() any { return new(proto.UnlockBackGroundMusicScRsp) })
+	c.regMsg(UnlockChatBubbleScNotify, func() any { return new(proto.UnlockChatBubbleScNotify) })
+	c.regMsg(UnlockPhoneThemeScNotify, func() any { return new(proto.UnlockPhoneThemeScNotify) })
 	c.regMsg(UnlockSkilltreeCsReq, func() any { return new(proto.UnlockSkilltreeCsReq) })
 	c.regMsg(UnlockSkilltreeScRsp, func() any { return new(proto.UnlockSkilltreeScRsp) })
 	c.regMsg(UseItemCsReq, func() any { return new(proto.UseItemCsReq) })
@@ -243,7 +252,7 @@ func (c *CmdProtoMap) registerMessage() {
 func (c *CmdProtoMap) regMsg(cmdId uint16, protoObjNewFunc func() any) {
 	_, exist := c.cmdDeDupMap[cmdId]
 	if exist {
-		fmt.Sprintf("reg dup msg, cmd id: %v", cmdId)
+		logger.Debug("reg dup msg, cmd id: %v", cmdId)
 		return
 	} else {
 		c.cmdDeDupMap[cmdId] = true
@@ -273,7 +282,7 @@ func (c *CmdProtoMap) regMsg(cmdId uint16, protoObjNewFunc func() any) {
 func (c *CmdProtoMap) GetProtoObjCacheByCmdId(cmdId uint16) pb.Message {
 	cachePool, exist := c.cmdIdProtoObjCacheMap[cmdId]
 	if !exist {
-		fmt.Sprintf("unknown cmd id: %v", cmdId)
+		logger.Debug("unknown cmd id: %v", cmdId)
 		return nil
 	}
 	protoObj := cachePool.Get().(pb.Message)
@@ -284,7 +293,7 @@ func (c *CmdProtoMap) GetProtoObjCacheByCmdId(cmdId uint16) pb.Message {
 func (c *CmdProtoMap) PutProtoObjCache(cmdId uint16, protoObj pb.Message) {
 	cachePool, exist := c.cmdIdProtoObjCacheMap[cmdId]
 	if !exist {
-		fmt.Sprintf("unknown cmd id: %v", cmdId)
+		logger.Debug("unknown cmd id: %v", cmdId)
 		return
 	}
 	cachePool.Put(protoObj)
@@ -293,7 +302,7 @@ func (c *CmdProtoMap) PutProtoObjCache(cmdId uint16, protoObj pb.Message) {
 func (c *CmdProtoMap) GetProtoObjFastNewByCmdId(cmdId uint16) pb.Message {
 	fn, exist := c.cmdIdProtoObjFastNewMap[cmdId]
 	if !exist {
-		fmt.Sprintf("unknown cmd id: %v", cmdId)
+		logger.Debug("unknown cmd id: %v", cmdId)
 		return nil
 	}
 	protoObj := fn().(pb.Message)
@@ -305,7 +314,7 @@ func (c *CmdProtoMap) GetProtoObjFastNewByCmdId(cmdId uint16) pb.Message {
 func (c *CmdProtoMap) GetProtoObjByCmdId(cmdId uint16) pb.Message {
 	refType, exist := c.cmdIdProtoObjMap[cmdId]
 	if !exist {
-		fmt.Sprintf("unknown cmd id: %v", cmdId)
+		logger.Debug("unknown cmd id: %v", cmdId)
 		return nil
 	}
 	protoObjInst := reflect.New(refType.Elem())
@@ -316,7 +325,7 @@ func (c *CmdProtoMap) GetProtoObjByCmdId(cmdId uint16) pb.Message {
 func (c *CmdProtoMap) GetCmdIdByProtoObj(protoObj pb.Message) uint16 {
 	cmdId, exist := c.protoObjCmdIdMap[reflect.TypeOf(protoObj)]
 	if !exist {
-		fmt.Sprintf("unknown proto object: %v", protoObj)
+		logger.Debug("unknown proto object: %v", protoObj)
 		return 0
 	}
 	return cmdId
@@ -325,7 +334,7 @@ func (c *CmdProtoMap) GetCmdIdByProtoObj(protoObj pb.Message) uint16 {
 func (c *CmdProtoMap) GetCmdNameByCmdId(cmdId uint16) string {
 	cmdName, exist := c.cmdIdCmdNameMap[cmdId]
 	if !exist {
-		fmt.Sprintf("unknown cmd id: %v", cmdId)
+		logger.Debug("unknown cmd id: %v", cmdId)
 		return ""
 	}
 	return cmdName
@@ -334,7 +343,7 @@ func (c *CmdProtoMap) GetCmdNameByCmdId(cmdId uint16) string {
 func (c *CmdProtoMap) GetCmdIdByCmdName(cmdName string) uint16 {
 	cmdId, exist := c.cmdNameCmdIdMap[cmdName]
 	if !exist {
-		fmt.Sprintf("unknown cmd name: %v", cmdName)
+		logger.Debug("unknown cmd name: %v", cmdName)
 		return 0
 	}
 	return cmdId
