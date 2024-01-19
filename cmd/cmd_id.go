@@ -1051,6 +1051,17 @@ const (
 )
 
 const (
+	ServiceConnectionReq  = 10000
+	ServiceConnectionRsp  = 10100
+	PlayerLoginReq        = 10001
+	PlayerLoginRsp        = 10101
+	PlayerToGameByGateReq = 10002
+	PlayerToGameByGateRsp = 10102
+	GetServerOuterAddrReq = 10003
+	GetServerOuterAddrRsp = 10103
+)
+
+const (
 	GmGive       = 11127
 	GmWorldLevel = 11001
 )
@@ -1266,6 +1277,15 @@ func (c *CmdProtoMap) registerAllMessage() {
 	c.regMsg(UnlockSkilltreeScRsp, func() any { return new(proto.UnlockSkilltreeScRsp) })
 	c.regMsg(UseItemCsReq, func() any { return new(proto.UseItemCsReq) })
 	c.regMsg(UseItemScRsp, func() any { return new(proto.UseItemScRsp) })
+	// server
 	c.regMsg(GmGive, func() any { return new(spb.GmGive) })
 	c.regMsg(GmWorldLevel, func() any { return new(spb.GmWorldLevel) })
+	c.regMsg(ServiceConnectionReq, func() any { return new(spb.ServiceConnectionReq) })
+	c.regMsg(ServiceConnectionRsp, func() any { return new(spb.ServiceConnectionRsp) })
+	c.regMsg(PlayerLoginReq, func() any { return new(spb.PlayerLoginReq) })
+	c.regMsg(PlayerLoginRsp, func() any { return new(spb.PlayerLoginRsp) })
+	c.regMsg(PlayerToGameByGateReq, func() any { return new(spb.PlayerToGameByGateReq) })
+	c.regMsg(PlayerToGameByGateRsp, func() any { return new(spb.PlayerToGameByGateRsp) })
+	c.regMsg(GetServerOuterAddrReq, func() any { return new(spb.GetServerOuterAddrReq) })
+	c.regMsg(GetServerOuterAddrRsp, func() any { return new(spb.GetServerOuterAddrRsp) })
 }
