@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./;proto";
+
+import "enum.server.proto";
+
+message ServiceConnectionReq {
+  ServerType server_type = 1;
+  string app_id = 2; // 发起请求的app_id
+  string addr = 3;
+  string port = 4;
+}
+
+message ServiceConnectionRsp {
+  ServerType server_type = 1;
+  string app_id = 2;
+}
+
+message PlayerLoginReq{
+  uint32 player_uid = 1;
+  string app_id = 2; // 登录的game的app_id
+}
+
+message PlayerLoginRsp{
+  uint32 player_uid = 1;
+}
+
+message PlayerLogoutReq{
+  uint32 player_uid = 1;
+  string app_id = 2; // 登录的app_id
+}
+
+message PlayerLogoutRsp{
+  uint32 player_uid = 1;
+}
+
+message PlayerToGameByGateReq{
+  int64 message_type = 1;
+  bytes player_bin = 2;
+}
+
+message PlayerToGameByGateRsp{
+  int64 message_type = 1;
+  bytes player_bin = 2;
+}
+
+message GetServerOuterAddrReq{
+  ServerType server_type = 1;
+  string app_id = 2;
+  uint64 player_num = 3;
+}
+
+message GetServerOuterAddrRsp{
+  ServerType server_type = 1;
+  string addr = 2;
+  string port = 3;
+  string app_id = 4; // 获取的目标地址的app_id
+}
